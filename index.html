@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI FAQ Interface</title>
+
+<style>
+
+    /* ==============================
+       RESET
+    ============================== */
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top left, #253b80, transparent 35%),
+            radial-gradient(circle at bottom right, #512da8, transparent 35%),
+            #080b18;
+        color: white;
+    }
+
+
+    /* NAVBAR */
+
+    nav {
+        width: 100%;
+        padding: 20px 7%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(15px);
+    }
+
+    .logo {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .logo span {
+        color: #6c63ff;
+    }
+
+    .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #bfc5dc;
+    }
+
+    .status-dot {
+        width: 9px;
+        height: 9px;
+        background: #3cff88;
+        border-radius: 50%;
+        box-shadow: 0 0 12px #3cff88;
+    }
+
+
+    /* HERO */
+
+    .hero {
+        text-align: center;
+        padding: 80px 20px 35px;
+    }
+
+    .ai-icon {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #6c63ff, #9c6cff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        box-shadow: 0 15px 40px rgba(108,99,255,0.35);
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%,100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    .hero h1 {
+        font-size: clamp(38px, 6vw, 65px);
+        margin-top: 25px;
+        background: linear-gradient(90deg, #ffffff, #9f96ff);
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .hero p {
+        margin: 18px auto;
+        max-width: 650px;
+        color: #aeb4cd;
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
+
+    /* SEARCH */
+
+    .search-box {
+        max-width: 720px;
+        margin: 35px auto;
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 19px 60px 19px 22px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.08);
+        color: white;
+        font-size: 16px;
+        outline: none;
+        backdrop-filter: blur(15px);
+        transition: 0.3s;
+    }
+
+    .search-box input:focus {
+        border-color: #6c63ff;
+        box-shadow: 0 0 25px rgba(108,99,255,0.25);
+    }
+
+    .search-box input::placeholder {
+        color: #8e94ae;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 22px;
+    }
+
+
+    /* CATEGORIES */
+
+    .categories {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 25px auto 45px;
+        max-width: 850px;
+    }
+
+    .category {
+        padding: 10px 18px;
+        border-radius: 30px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.06);
+        color: #c7cbe0;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .category:hover,
+    .category.active {
+        background: #6c63ff;
+        color: white;
+        border-color: #6c63ff;
+        transform: translateY(-2px);
+    }
+
+
+    /* FAQ CONTAINER */
+
+    .container {
+        width: 90%;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .section-title {
+        margin-bottom: 20px;
+        font-size: 25px;
+    }
+
+    .faq-card {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+        transition: 0.3s;
+    }
+
+    .faq-card:hover {
+        border-color: rgba(108,99,255,0.6);
+        transform: translateY(-2px);
+    }
+
+    .question {
+        padding: 22px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+    }
+
+    .question span {
+        color: #8e86ff;
+        font-size: 20px;
+        transition: 0.3s;
+    }
+
+    .answer {
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 22px;
+        color: #adb3ca;
+        line-height: 1.7;
+        transition: all 0.4s ease;
+    }
+
+    .faq-card.open .answer {
+        max-height: 300px;
+        padding: 0 22px 22px;
+    }
+
+    .faq-card.open .question span {
+        transform: rotate(45deg);
+    }
+
+
+    /* AI RESULT */
+
+    #aiResult {
+        display: none;
+        margin: 30px auto;
+        padding: 25px;
+        max-width: 900px;
+        background: rgba(108,99,255,0.12);
+        border: 1px solid rgba(108,99,255,0.4);
+        border-radius: 18px;
+    }
+
+    #aiResult h3 {
+        color: #9d96ff;
+        margin-bottom: 12px;
+    }
+
+    #aiAnswer {
+        color: #d2d5e4;
+        line-height: 1.7;
+    }
+
+
+    /* MOBILE */
+
+    @media(max-width:600px) {
+
+        nav {
+            padding: 18px 5%;
+        }
+
+        .hero {
+            padding-top: 55px;
+        }
+
+        .hero p {
+            font-size: 15px;
+        }
+
+        .question {
+            font-size: 15px;
+        }
+
+        .categories {
+            padding: 0 10px;
+        }
+    }
+
+</style>
+
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav>
+
+    <div class="logo">AI<span>FAQ</span></div>
+
+    <div class="status">
+
+        <div class="status-dot"></div>
+
+        AI Online
+
+    </div>
+
+</nav>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="ai-icon">🤖</div>
+
+    <h1>AI FAQ Interface</h1>
+
+    <p>
+        Ask your questions and get instant answers.
+        Our intelligent FAQ interface helps users quickly
+        find information through an easy and interactive experience.
+    </p>
+
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Ask anything... e.g. What is Artificial Intelligence?"
+            onkeyup="searchFAQ()"
+        >
+
+        <div class="search-icon">🔍</div>
+
+    </div>
+
+</section>
+
+
+<!-- CATEGORIES -->
+
+<div class="categories">
+
+    <div class="category active" onclick="filterFAQ('all', this)">
+        All
+    </div>
+
+    <div class="category" onclick="filterFAQ('ai', this)">
+        🤖 AI
+    </div>
+
+    <div class="category" onclick="filterFAQ('project', this)">
+        💻 Project
+    </div>
+
+    <div class="category" onclick="filterFAQ('technology', this)">
+        ⚙️ Technology
+    </div>
+
+    <div class="category" onclick="filterFAQ('general', this)">
+        📚 General
+    </div>
+
+</div>
+
+
+<!-- AI SEARCH RESULT -->
+
+<div id="aiResult">
+
+    <h3>🤖 AI Assistant</h3>
+
+    <p id="aiAnswer"></p>
+
+</div>
+
+
+<!-- FAQ -->
+
+<main class="container">
+
+    <h2 class="section-title">
+        Frequently Asked Questions
+    </h2>
+
+
+    <div class="faq-card" data-category="ai">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is Artificial Intelligence?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            Artificial Intelligence (AI) is a technology that enables
+            computers and machines to perform tasks that normally
+            require human intelligence, such as learning, reasoning,
+            problem-solving and decision-making.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="ai">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is Machine Learning?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            Machine Learning is a branch of Artificial Intelligence
+            where computers learn patterns from data and improve
+            their performance without being explicitly programmed
+            for every task.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="project">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is an AI FAQ Interface?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            An AI FAQ Interface is an intelligent question-answer
+            system that allows users to search frequently asked
+            questions and receive relevant answers through an
+            easy-to-use interface.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="project">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is the purpose of this project?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            The main purpose of this project is to create a simple,
+            interactive and user-friendly platform where users can
+            search questions and quickly obtain useful answers.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="technology">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            Which technologies are used to create this website?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            The frontend of this website can be developed using
+            HTML for structure, CSS for design and JavaScript
+            for interaction and dynamic FAQ searching.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="technology">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is JavaScript used for?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            JavaScript is used to make websites interactive.
+            In this project it handles FAQ searching, category
+            filtering, opening and closing answers, and displaying
+            AI-style responses.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="general">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            What is an FAQ?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            FAQ stands for Frequently Asked Questions.
+            It is a collection of common questions and their
+            answers designed to help users find information quickly.
+        </div>
+
+    </div>
+
+
+    <div class="faq-card" data-category="general">
+
+        <div class="question" onclick="toggleFAQ(this)">
+            Who can use an FAQ system?
+            <span>+</span>
+        </div>
+
+        <div class="answer">
+            FAQ systems can be used by students, customers,
+            employees, organizations, educational institutions,
+            websites and many other applications.
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+
+    // OPEN / CLOSE FAQ
+
+    function toggleFAQ(element) {
+
+        const card = element.parentElement;
+
+        card.classList.toggle("open");
+
+    }
+
+
+    // SEARCH FAQ
+
+    function searchFAQ() {
+
+        const input =
+            document.getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+        const cards =
+            document.querySelectorAll(".faq-card");
+
+        let found = false;
+
+        cards.forEach(card => {
+
+            const question =
+                card.querySelector(".question")
+                .innerText
+                .toLowerCase();
+
+            const answer =
+                card.querySelector(".answer")
+                .innerText
+                .toLowerCase();
+
+            if (
+                input === "" ||
+                question.includes(input) ||
+                answer.includes(input)
+            ) {
+
+                card.style.display = "block";
+                found = true;
+
+            } else {
+
+                card.style.display = "none";
+
+            }
+
+        });
+
+
+        // AI STYLE ANSWER
+
+        const aiResult =
+            document.getElementById("aiResult");
+
+        const aiAnswer =
+            document.getElementById("aiAnswer");
+
+
+        if (input !== "" && !found) {
+
+            aiResult.style.display = "block";
+
+            let answer =
+                "Sorry, I couldn't find an exact FAQ for your question. ";
+
+            if (
+                input.includes("ai") ||
+                input.includes("artificial intelligence")
+            ) {
+
+                answer =
+                    "Artificial Intelligence is a field of computer science that enables machines to perform tasks that normally require human intelligence.";
+
+            }
+
+            else if (
+                input.includes("machine learning") ||
+                input.includes("ml")
+            ) {
+
+                answer =
+                    "Machine Learning is a branch of AI that allows computers to learn patterns from data and make predictions or decisions.";
+
+            }
+
+            else if (
+                input.includes("html")
+            ) {
+
+                answer =
+                    "HTML stands for HyperText Markup Language. It is used to create the structure and content of web pages.";
+
+            }
+
+            else if (
+                input.includes("css")
+            ) {
+
+                answer =
+                    "CSS stands for Cascading Style Sheets. It is used to design and style HTML elements.";
+
+            }
+
+            else if (
+                input.includes("javascript") ||
+                input.includes("js")
+            ) {
+
+                answer =
+                    "JavaScript is a programming language commonly used to add interactive and dynamic functionality to websites.";
+
+            }
+
+            else {
+
+                answer =
+                    "I don't have a predefined answer for this question yet. Try searching for AI, Machine Learning, HTML, CSS, JavaScript, or FAQ.";
+
+            }
+
+            aiAnswer.innerText = answer;
+
+        }
+
+        else {
+
+            aiResult.style.display = "none";
+
+        }
+
+    }
+
+
+    // CATEGORY FILTER
+
+    function filterFAQ(category, button) {
+
+        const cards =
+            document.querySelectorAll(".faq-card");
+
+        const buttons =
+            document.querySelectorAll(".category");
+
+
+        buttons.forEach(btn => {
+
+            btn.classList.remove("active");
+
+        });
+
+
+        button.classList.add("active");
+
+
+        cards.forEach(card => {
+
+            if (
+                category === "all" ||
+                card.dataset.category === category
+            ) {
+
+                card.style.display = "block";
+
+            } else {
+
+                card.style.display = "none";
+
+            }
+
+        });
+
+
+        document.getElementById("searchInput").value = "";
+
+        document.getElementById("aiResult").style.display = "none";
+
+    }
+
+</script>
+
+
+</body>
+
+</html>
